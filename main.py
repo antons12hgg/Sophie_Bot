@@ -34,4 +34,5 @@ def chat_with_sophie(message):
         bot.send_message(message.chat.id, "Oops! Something went wrong.")
         print("ERROR:", e)
 
+bot.remove_webhook()
 bot.polling(none_stop=True, interval=0, timeout=20, skip_pending=True)
