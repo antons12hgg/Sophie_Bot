@@ -38,8 +38,10 @@ def chat_with_sophie(message):
         bot.send_message(message.chat.id, reply)
 
     except Exception as e:
-        bot.send_message(message.chat.id, "Oops! Something went wrong.")
-        print("ERROR:", e)
+    import traceback
+    bot.send_message(message.chat.id, "Oops! Something went wrong.")
+    print("ERROR:", e)
+    traceback.print_exc()
 
 # Запуск без конфликтов
 bot.polling(none_stop=True, interval=0, timeout=20, skip_pending=True)
