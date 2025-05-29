@@ -8,7 +8,9 @@ OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 
 print("STARTING BOT...")
 
-client = OpenAI(api_key=OPENAI_API_KEY)
+import openai
+
+openai.api_key = OPENAI_API_KEY
 bot = telebot.TeleBot(TELEGRAM_BOT_TOKEN)
 
 # Промт-персонаж для Софи
@@ -22,7 +24,7 @@ def chat_with_sophie(message):
     user_message = message.text
 
     try:
-        response = client.chat.completions.create(
+        response = openai.ChatCompletion.create(
             model="gpt-3.5-turbo",
             messages=[
                 {"role": "system", "content": BASE_PROMPT},
