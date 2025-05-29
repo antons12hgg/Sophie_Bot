@@ -1,14 +1,14 @@
-print("STARTING BOT...")
-
 import os
 import telebot
-import openai
+from flask import Flask, request
+
+from openai import OpenAI
 
 TELEGRAM_BOT_TOKEN = os.getenv("TELEGRAM_BOT_TOKEN")
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 
-openai.api_key = OPENAI_API_KEY
 bot = telebot.TeleBot(TELEGRAM_BOT_TOKEN)
+client = OpenAI(api_key=OPENAI_API_KEY)
 
 BASE_PROMPT = (
     "You are Sophie, a virtual girlfriend. You're flirty, caring, slightly sarcastic, and very charming. "
@@ -17,13 +17,12 @@ BASE_PROMPT = (
 
 @bot.message_handler(func=lambda message: True)
 def chat_with_sophie(message):
-    user_message = message.text
     try:
-        response = openai.chat.completions.create(
+        response = client.chat.completions.create(
             model="gpt-3.5-turbo",
             messages=[
                 {"role": "system", "content": BASE_PROMPT},
-                {"role": "user", "content": user_message}
+                {"role": "user", "content": message.text}
             ],
             max_tokens=200,
             temperature=0.8
@@ -31,8 +30,24 @@ def chat_with_sophie(message):
         reply = response.choices[0].message.content
         bot.send_message(message.chat.id, reply)
     except Exception as e:
-        bot.send_message(message.chat.id, "Oops! Something went wrong.")
-        print("ERROR:", e)
+        print("Error:", e)
+        bot.send_message(message.chat.id, "🥺 Что-то пошло не так...")
 
-bot.remove_webhook()
-bot.polling(none_stop=True, interval=0, timeout=20, skip_pending=True)
+# ===== Flask app =====
+app = Flask(__name__)
+
+@app.route('/')
+def index():
+    return "Sophie is alive 💋"
+
+@app.route(f"/{TELEGRAM_BOT_TOKEN}", methods=['POST'])
+def webhook():
+    json_string = request.get_data().decode('utf-8')
+    update = telebot.types.Update.de_json(json_string)
+    bot.process_new_updates([update])
+    return "!", 200
+
+if __name__ == "__main__":
+    bot.remove_webhook()
+    bot.set_webhook(url=f"{os.getenv('RENDER_EXTERNAL_URL')}/{TELEGRAM_BOT_TOKEN}")
+    app.run(host="0.0.0.0", port=int(os.environ.get("PORT", 5000)))
