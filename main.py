@@ -2,12 +2,11 @@ print("STARTING BOT...")
 import os
 from openai import OpenAI
 import telebot
+import traceback
+import openai
 
 TELEGRAM_BOT_TOKEN = os.getenv("TELEGRAM_BOT_TOKEN")
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
-
-
-import openai
 
 openai.api_key = OPENAI_API_KEY
 bot = telebot.TeleBot(TELEGRAM_BOT_TOKEN)
@@ -36,11 +35,10 @@ def chat_with_sophie(message):
         reply = response.choices[0].message.content
         bot.send_message(message.chat.id, reply)
 
-   except Exception as e:
-    import traceback
-    bot.send_message(message.chat.id, "Oops! Something went wrong.")
-    print("ERROR:", e)
-    traceback.print_exc()
+    except Exception as e:
+        bot.send_message(message.chat.id, "Oops! Something went wrong.")
+        print("ERROR:", e)
+        traceback.print_exc()
 
 # Запуск без конфликтов
 bot.polling(none_stop=True, interval=0, timeout=20, skip_pending=True)
