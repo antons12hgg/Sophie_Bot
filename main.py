@@ -6,7 +6,6 @@ import telebot
 TELEGRAM_BOT_TOKEN = os.getenv("TELEGRAM_BOT_TOKEN")
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 
-print("STARTING BOT...")
 
 import openai
 
@@ -37,7 +36,7 @@ def chat_with_sophie(message):
         reply = response.choices[0].message.content
         bot.send_message(message.chat.id, reply)
 
-    except Exception as e:
+   except Exception as e:
     import traceback
     bot.send_message(message.chat.id, "Oops! Something went wrong.")
     print("ERROR:", e)
